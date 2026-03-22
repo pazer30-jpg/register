@@ -27,18 +27,14 @@
           <nav class="nav-section">
             <button class="nav-item active">Overview</button>
             <button class="nav-item">Search</button>
-            <button class="nav-item">Players</button>
+            <button class="nav-item">Profiles</button>
             <button class="nav-item">Comparisons</button>
             <button class="nav-item">Pipeline</button>
             <button class="nav-item">Admin Sources</button>
           </nav>
         </div>
 
-        <div class="sidebar-footer">
-          <p>Open-source ingestion status</p>
-          <strong>12 sources healthy</strong>
-          <span>Last scheduled sync: 04:30 UTC</span>
-        </div>
+        <div class="sidebar-footer" id="sidebarHealth"></div>
       </aside>
 
       <main class="main-content">
@@ -47,42 +43,29 @@
             <p class="eyebrow">AI-powered recruitment workspace</p>
             <h1>Decision-ready player scouting from fragmented public data.</h1>
             <p class="hero-copy">
-              ScoutIQ unifies stats, news, public video, and contextual signals into one
-              normalized intelligence layer so analysts can quickly decide who to monitor,
-              short-list, or recruit.
+              ScoutIQ unifies open-source stats, public news, video metadata, scout notes,
+              and team-fit logic into one working environment so analysts can track,
+              evaluate, and recruit with evidence.
             </p>
+            <div id="queryInsights" class="query-insights"></div>
           </div>
           <div class="hero-actions">
             <label class="search-box">
               <span>Natural language player search</span>
-              <input id="nlQuery" type="text" placeholder="e.g. left-footed U23 winger in a high-press league with strong ball progression" />
+              <input
+                id="nlQuery"
+                type="text"
+                placeholder="e.g. left-footed U23 winger in a pressing league with high carry volume"
+              />
             </label>
-            <button id="runQuery" class="primary-btn">Run AI search</button>
+            <div class="action-row">
+              <button id="runQuery" class="primary-btn">Run AI search</button>
+              <button id="resetWorkspace" class="secondary-btn">Reset workspace</button>
+            </div>
           </div>
         </header>
 
-        <section class="kpi-grid">
-          <article class="card kpi-card">
-            <span>Normalized player profiles</span>
-            <strong>284,000+</strong>
-            <small>Cross-source deduplicated identities</small>
-          </article>
-          <article class="card kpi-card">
-            <span>Daily ingested updates</span>
-            <strong>18.4k</strong>
-            <small>Stats, news, and video metadata refreshes</small>
-          </article>
-          <article class="card kpi-card">
-            <span>AI summaries generated</span>
-            <strong>9,240</strong>
-            <small>Automated strengths, risks, and recommendations</small>
-          </article>
-          <article class="card kpi-card">
-            <span>Triggered alerts</span>
-            <strong>146</strong>
-            <small>Form spikes, injuries, transfer rumors, and role changes</small>
-          </article>
-        </section>
+        <section class="kpi-grid" id="kpiGrid"></section>
 
         <section class="two-column-layout">
           <article class="card section-card">
@@ -93,7 +76,7 @@
               </div>
               <span class="badge">Natural language + filters</span>
             </div>
-            <div class="filters">
+            <div class="filters filters-4">
               <label>
                 Position
                 <select id="positionFilter"></select>
@@ -112,8 +95,18 @@
                 <select id="stageFilter">
                   <option value="all">All</option>
                   <option value="monitor">Monitor</option>
-                  <option value="short-list">Short-list</option>
                   <option value="analyze">Analyze</option>
+                  <option value="short-list">Short-list</option>
+                  <option value="reject">Reject</option>
+                </select>
+              </label>
+              <label>
+                Sort by
+                <select id="sortFilter">
+                  <option value="relevance">Relevance</option>
+                  <option value="fit">Fit score</option>
+                  <option value="upside">Upside</option>
+                  <option value="risk">Lowest risk</option>
                 </select>
               </label>
             </div>
@@ -129,6 +122,12 @@
               <span id="profileDecision" class="badge muted">Decision pending</span>
             </div>
 
+            <div class="profile-toolbar">
+              <button id="saveWatchlist" class="secondary-btn">Save to watchlist</button>
+              <button id="advancePipeline" class="secondary-btn">Advance stage</button>
+              <button id="flagPlayer" class="secondary-btn">Flag risk</button>
+            </div>
+
             <div id="playerProfile" class="player-profile"></div>
           </article>
         </section>
@@ -138,7 +137,7 @@
             <div class="section-header">
               <div>
                 <p class="eyebrow">3-5. Intelligence layers</p>
-                <h2>Normalization, news, and video context</h2>
+                <h2>Normalization, news, video, and schema coverage</h2>
               </div>
             </div>
             <div id="intelStack" class="stack-list"></div>
@@ -148,17 +147,30 @@
             <div class="section-header">
               <div>
                 <p class="eyebrow">6-8. Recruitment workflow</p>
-                <h2>Watchlist, AI summary, and comparison</h2>
+                <h2>Watchlist, AI summary, comparison, and notes</h2>
               </div>
             </div>
             <div id="pipelineBoard" class="pipeline-board"></div>
             <div id="comparisonPanel" class="comparison-panel"></div>
+            <div class="notes-panel">
+              <div class="section-header compact">
+                <div>
+                  <p class="eyebrow">Scout notes</p>
+                  <h3>Internal assessment</h3>
+                </div>
+              </div>
+              <textarea id="scoutNotesInput" rows="5" placeholder="Add live scouting notes, role observations, or recruitment concerns..."></textarea>
+              <div class="action-row">
+                <button id="saveNotes" class="primary-btn slim">Save notes</button>
+                <span id="notesStatus" class="subtle"></span>
+              </div>
+            </div>
           </article>
 
           <article class="card section-card">
             <div class="section-header">
               <div>
-                <p class="eyebrow">9-10. Fit and alerts</p>
+                <p class="eyebrow">9-10. Fit, alerts, and admin</p>
                 <h2>Team fit scoring engine</h2>
               </div>
             </div>
@@ -167,40 +179,28 @@
           </article>
         </section>
 
-        <section class="card section-card architecture-card">
-          <div class="section-header">
-            <div>
-              <p class="eyebrow">Technical blueprint</p>
-              <h2>Modular architecture for scalable ingestion and scouting workflows</h2>
+        <section class="two-column-layout equal-columns">
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Admin sources</p>
+                <h2>Source health and ingestion controls</h2>
+              </div>
+              <span class="badge">Operational view</span>
             </div>
-            <span class="badge">PostgreSQL + scheduled jobs</span>
-          </div>
-          <div class="architecture-grid">
-            <div>
-              <h3>Public-source ingestion</h3>
-              <p>Adapters for federation stats feeds, league sites, club sites, news APIs, and video platforms. Each source is mapped into a canonical player schema and assigned source-quality confidence.</p>
+            <div id="sourceTable" class="source-table"></div>
+          </article>
+
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Canonical schema</p>
+                <h2>Normalized player record coverage</h2>
+              </div>
+              <span class="badge">PostgreSQL-ready</span>
             </div>
-            <div>
-              <h3>Normalization + deduplication</h3>
-              <p>Entity resolution merges duplicate player identities across competitions using name variants, birth year, club, position, and fuzzy matching before data is written into PostgreSQL.</p>
-            </div>
-            <div>
-              <h3>Search + ranking</h3>
-              <p>Hybrid index combines structured filters with semantic embeddings so scouts can type “ball-winning six with progressive passing” and retrieve ranked candidates.</p>
-            </div>
-            <div>
-              <h3>AI scouting intelligence</h3>
-              <p>LLM-generated summaries explain why the player matters, highlight strengths and risk flags, compare stylistic peers, and recommend monitor, short-list, or reject.</p>
-            </div>
-            <div>
-              <h3>Workflow tools</h3>
-              <p>Watchlists, recruitment pipeline stages, internal notes, alert subscriptions, and source-management admin tools keep collaboration organized across scouts and analysts.</p>
-            </div>
-            <div>
-              <h3>Operational cadence</h3>
-              <p>Scheduled ingestion jobs refresh stats nightly, news hourly, and alert logic continuously. Admin controls track source health, sync latency, and parser errors.</p>
-            </div>
-          </div>
+            <div id="schemaPanel" class="schema-panel"></div>
+          </article>
         </section>
       </main>
     </div>
