@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'scoutiq-workspace-v3';
+const STORAGE_KEY = 'scoutiq-workspace-v4';
 
 const defaultWorkspace = {
   selectedId: null,
@@ -13,7 +13,9 @@ const state = {
   workspace: loadWorkspace(),
   bootstrap: null,
   results: [],
-  selectedPlayer: null
+  selectedPlayer: null,
+  dataset: window.SCOUTIQ_EMBEDDED || null,
+  embeddedMode: Boolean(window.SCOUTIQ_EMBEDDED)
 };
 
 const els = {
@@ -63,9 +65,7 @@ function persistWorkspace() {
 
 async function fetchJson(url) {
   const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
-  }
+  if (!response.ok) throw new Error(`Request failed: ${response.status}`);
   return response.json();
 }
 
@@ -75,8 +75,34 @@ function parseQuery(query) {
     wantsLeftFooted: lower.includes('left-footed') || lower.includes('left footed'),
     wantsPressing: lower.includes('press') || lower.includes('counter-press'),
     wantsProgression: lower.includes('progress') || lower.includes('carry') || lower.includes('passing'),
-    wantsU23: lower.includes('u23') || lower.includes('under 23')
+    wantsU23: lower.includes('u23') || lower.includes('under 23'),
+    matchedTerms: query.split(/\s+/).filter(Boolean)
   };
+}
+
+function scorePlayer(player, parsedQuery) {
+  if (!parsedQuery.matchedTerms.length) return player.relevance;
+  const haystack = [
+    player.position,
+    player.team,
+    player.league,
+    player.summary,
+    player.foot,
+    ...player.strengths,
+    ...player.tacticalFit,
+    ...player.similar,
+    ...player.schemaCoverage
+  ].join(' ').toLowerCase();
+
+  let score = player.relevance - 10;
+  parsedQuery.matchedTerms.forEach((token) => {
+    if (haystack.includes(token.toLowerCase())) score += 8;
+  });
+  if (parsedQuery.wantsLeftFooted && player.foot === 'Left') score += 10;
+  if (parsedQuery.wantsPressing && player.tacticalFit.some((item) => /press/i.test(item))) score += 10;
+  if (parsedQuery.wantsProgression && Object.keys(player.stats).some((key) => /progress|carry|pass/i.test(key))) score += 8;
+  if (parsedQuery.wantsU23 && player.age <= 23) score += 8;
+  return score;
 }
 
 function getBadgeClass(status) {
@@ -95,6 +121,37 @@ function enrichPlayer(player) {
   };
 }
 
+function searchEmbeddedPlayers() {
+  const parsedQuery = parseQuery(state.workspace.query);
+  return state.dataset.players
+    .filter((player) => state.workspace.filters.position === 'All' || player.position === state.workspace.filters.position)
+    .filter((player) => {
+      if (state.workspace.filters.age === 'u21') return player.age < 21;
+      if (state.workspace.filters.age === 'u24') return player.age < 24;
+      if (state.workspace.filters.age === '24plus') return player.age >= 24;
+      return true;
+    })
+    .filter((player) => state.workspace.filters.stage === 'all' || player.pipeline.toLowerCase() === state.workspace.filters.stage)
+    .map((player) => ({ ...player, queryScore: scorePlayer(player, parsedQuery) }))
+    .sort((a, b) => {
+      if (state.workspace.filters.sort === 'fit') return b.fitScore - a.fitScore;
+      if (state.workspace.filters.sort === 'upside') return b.upside - a.upside;
+      if (state.workspace.filters.sort === 'risk') return a.riskScore - b.riskScore;
+      return b.queryScore - a.queryScore;
+    });
+}
+
+function bootstrapFromDataset() {
+  return {
+    overview: state.dataset.overview,
+    sources: state.dataset.sources,
+    schemaFields: state.dataset.schemaFields,
+    externalRepositories: state.dataset.externalRepositories || [],
+    positions: ['All', ...new Set(state.dataset.players.map((player) => player.position))],
+    defaultSelectedId: state.dataset.players[0].id
+  };
+}
+
 function renderSidebarHealth() {
   const sources = state.bootstrap.sources;
   const healthy = sources.filter((source) => source.status === 'Healthy').length;
@@ -102,7 +159,7 @@ function renderSidebarHealth() {
   els.sidebarHealth.innerHTML = `
     <p>Open-source ingestion status</p>
     <strong>${healthy}/${sources.length} sources healthy</strong>
-    <span>${needsReview} sources need attention · API-backed demo</span>
+    <span>${needsReview} sources need attention · ${state.embeddedMode ? 'standalone mode' : 'API-backed demo'}</span>
   `;
 }
 
@@ -134,6 +191,7 @@ function renderQueryInsights() {
   if (parsed.wantsPressing) chips.push('Detected: pressing system fit');
   if (parsed.wantsProgression) chips.push('Detected: ball progression need');
   if (parsed.wantsU23) chips.push('Detected: U23 age target');
+  if (state.bootstrap.externalRepositories?.length) chips.push(`External source loaded: ${state.bootstrap.externalRepositories[0].name}`);
 
   els.queryInsights.innerHTML = chips.length
     ? `<div class="query-chip-row">${chips.map((chip) => `<div class="query-chip">${chip}</div>`).join('')}</div>`
@@ -307,6 +365,19 @@ function renderPipeline() {
 }
 
 function renderSources() {
+  const repoCards = (state.bootstrap.externalRepositories || []).map((repo) => `
+    <div class="source-card">
+      <div class="source-row">
+        <strong>${repo.name}</strong>
+        <span class="badge">External repo</span>
+      </div>
+      <div class="source-row"><span class="field-meta">Stack</span><span>${repo.stack}</span></div>
+      <div class="source-row"><span class="field-meta">URL</span><span>${repo.url}</span></div>
+      <div class="field-meta">${repo.notes}</div>
+      <div class="tag-row">${repo.endpoints.map((endpoint) => `<span class="tag">${endpoint}</span>`).join('')}</div>
+    </div>
+  `);
+
   els.sourceTable.innerHTML = state.bootstrap.sources.map((source) => `
     <div class="source-card">
       <div class="source-row">
@@ -318,7 +389,7 @@ function renderSources() {
       <div class="source-row"><span class="field-meta">Coverage</span><span>${source.coverage}%</span></div>
       <div class="source-row"><span class="field-meta">Parser errors</span><span>${source.errors}</span></div>
     </div>
-  `).join('');
+  `).concat(repoCards).join('');
 }
 
 function renderSchema() {
@@ -335,23 +406,30 @@ function renderSchema() {
 
 async function loadSelectedPlayer() {
   if (!state.workspace.selectedId) return;
+  if (state.embeddedMode) {
+    state.selectedPlayer = state.dataset.players.find((player) => player.id === state.workspace.selectedId) || null;
+    return;
+  }
   const data = await fetchJson(`/api/players/${state.workspace.selectedId}`);
   state.selectedPlayer = data.player;
 }
 
 async function loadResults() {
-  const params = new URLSearchParams({
-    q: state.workspace.query,
-    position: state.workspace.filters.position,
-    age: state.workspace.filters.age,
-    stage: state.workspace.filters.stage,
-    sort: state.workspace.filters.sort
-  });
-  const data = await fetchJson(`/api/players?${params.toString()}`);
-  state.results = data.players;
-  if (!state.workspace.selectedId && state.results.length) {
-    state.workspace.selectedId = state.results[0].id;
+  if (state.embeddedMode) {
+    state.results = searchEmbeddedPlayers();
+  } else {
+    const params = new URLSearchParams({
+      q: state.workspace.query,
+      position: state.workspace.filters.position,
+      age: state.workspace.filters.age,
+      stage: state.workspace.filters.stage,
+      sort: state.workspace.filters.sort
+    });
+    const data = await fetchJson(`/api/players?${params.toString()}`);
+    state.results = data.players;
   }
+
+  if (!state.workspace.selectedId && state.results.length) state.workspace.selectedId = state.results[0].id;
   if (state.results.length && !state.results.some((player) => player.id === state.workspace.selectedId)) {
     state.workspace.selectedId = state.results[0].id;
   }
@@ -367,9 +445,7 @@ async function refreshData() {
 function saveNotes() {
   state.workspace.notes[state.workspace.selectedId] = els.scoutNotesInput.value.trim();
   persistWorkspace();
-  els.notesStatus.textContent = state.workspace.notes[state.workspace.selectedId]
-    ? 'Notes saved to local workspace.'
-    : 'Notes cleared from local workspace.';
+  els.notesStatus.textContent = state.workspace.notes[state.workspace.selectedId] ? 'Notes saved to local workspace.' : 'Notes cleared from local workspace.';
   renderKPIs();
   renderProfile();
 }
@@ -410,10 +486,8 @@ async function handleResultClick(event) {
 }
 
 async function boot() {
-  state.bootstrap = await fetchJson('/api/bootstrap');
-  if (!state.workspace.selectedId) {
-    state.workspace.selectedId = state.bootstrap.defaultSelectedId;
-  }
+  state.bootstrap = state.embeddedMode ? bootstrapFromDataset() : await fetchJson('/api/bootstrap');
+  if (!state.workspace.selectedId) state.workspace.selectedId = state.bootstrap.defaultSelectedId;
 
   els.positionFilter.innerHTML = state.bootstrap.positions.map((position) => `<option value="${position}">${position}</option>`).join('');
   els.positionFilter.value = state.workspace.filters.position;
@@ -443,31 +517,26 @@ function bindEvents() {
     persistWorkspace();
     await refreshData();
   });
-
   els.positionFilter.addEventListener('change', async (event) => {
     state.workspace.filters.position = event.target.value;
     persistWorkspace();
     await refreshData();
   });
-
   els.ageFilter.addEventListener('change', async (event) => {
     state.workspace.filters.age = event.target.value;
     persistWorkspace();
     await refreshData();
   });
-
   els.stageFilter.addEventListener('change', async (event) => {
     state.workspace.filters.stage = event.target.value;
     persistWorkspace();
     await refreshData();
   });
-
   els.sortFilter.addEventListener('change', async (event) => {
     state.workspace.filters.sort = event.target.value;
     persistWorkspace();
     await refreshData();
   });
-
   els.searchResults.addEventListener('click', handleResultClick);
   els.saveNotes.addEventListener('click', saveNotes);
   els.saveWatchlist.addEventListener('click', toggleWatchlist);

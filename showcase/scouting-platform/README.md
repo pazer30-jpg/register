@@ -1,32 +1,49 @@
 # ScoutIQ scouting platform demo
 
-ScoutIQ is now a small end-to-end demo instead of a purely static showcase.
+ScoutIQ now supports two ways to run:
 
-## What it includes
+## Option 1: API-backed demo
 
-- API-backed player search and profile loading from a local Node server.
-- Natural-language query hints and ranked search results.
-- Unified player profiles with stats, source health, news, video context, AI summary, and fit scoring.
-- Local analyst workspace persistence for watchlists, notes, and manual risk flags.
-- Admin-facing source-health and canonical schema coverage panels.
-- A starter PostgreSQL schema for moving the demo toward production.
+- `index.html` + `app.js` + `server.js`
+- Uses the lightweight Node API and seeded mock data
+- Best for showing the full local product slice
 
-## File structure
-
-- `index.html` – dashboard shell and product modules.
-- `styles.css` – premium dark dashboard styling.
-- `app.js` – browser client that fetches API data and manages local workspace state.
-- `server.js` – lightweight Node HTTP server that serves static assets and JSON API endpoints.
-- `data/seed.json` – mock canonical scouting data used by the local API.
-- `db/schema.sql` – starter PostgreSQL schema for normalized players, source records, metrics, notes, and watchlists.
-
-## Run locally
+Run:
 
 ```bash
 npm run scoutiq:serve
 ```
 
 Then open `http://127.0.0.1:4321`.
+
+## Option 2: standalone browser file
+
+If localhost or port forwarding is inconvenient, open this file directly in a browser:
+
+```text
+showcase/scouting-platform/standalone.html
+```
+
+This mode embeds the seed data directly in the page so the UI works without starting the Node server.
+
+## What it includes
+
+- Natural-language query hints and ranked search results.
+- Unified player profiles with stats, source health, news, video context, AI summary, and fit scoring.
+- Local analyst workspace persistence for watchlists, notes, and manual risk flags.
+- Admin-facing source-health and canonical schema coverage panels.
+- An imported external source reference for `romanzeze/footballManeger`, surfaced from the provided repository and its documented player/team endpoints.
+- A starter PostgreSQL schema for moving the demo toward production.
+
+## File structure
+
+- `index.html` – API-backed dashboard shell.
+- `standalone.html` – standalone version that works without the Node server.
+- `styles.css` – premium dark dashboard styling.
+- `app.js` – browser client that works in API-backed mode or embedded-data mode.
+- `server.js` – lightweight Node HTTP server that serves static assets and JSON API endpoints.
+- `data/seed.json` – mock canonical scouting data used by the local API and standalone mode.
+- `db/schema.sql` – starter PostgreSQL schema for normalized players, source records, metrics, notes, and watchlists.
 
 ## Production next steps
 

@@ -107,6 +107,7 @@ function router(req, res) {
       overview: seed.overview,
       sources: seed.sources,
       schemaFields: seed.schemaFields,
+      externalRepositories: seed.externalRepositories || [],
       positions: ['All', ...new Set(seed.players.map((player) => player.position))],
       defaultSelectedId: seed.players[0].id
     });
@@ -135,7 +136,7 @@ function router(req, res) {
   }
 
   if (pathname === '/api/admin/schema') {
-    sendJson(res, 200, { schemaFields: seed.schemaFields });
+    sendJson(res, 200, { schemaFields: seed.schemaFields, externalRepositories: seed.externalRepositories || [] });
     return;
   }
 
