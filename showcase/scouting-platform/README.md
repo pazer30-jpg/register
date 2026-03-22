@@ -1,23 +1,36 @@
-# ScoutIQ scouting platform prototype
+# ScoutIQ scouting platform demo
 
-This prototype is now a more functional scouting workspace rather than a static mockup. It demonstrates:
+ScoutIQ is now a small end-to-end demo instead of a purely static showcase.
 
-- Natural-language player discovery with explainable query cues.
-- A unified player profile with stats, source health, news, video context, AI summary, fit scoring, and scout notes.
-- A persistent local workspace using `localStorage` for watchlist state, note-taking, and manual risk flags.
-- Recruitment pipeline progression, player comparison, source-health admin views, and canonical schema coverage.
+## What it includes
+
+- API-backed player search and profile loading from a local Node server.
+- Natural-language query hints and ranked search results.
+- Unified player profiles with stats, source health, news, video context, AI summary, and fit scoring.
+- Local analyst workspace persistence for watchlists, notes, and manual risk flags.
+- Admin-facing source-health and canonical schema coverage panels.
+- A starter PostgreSQL schema for moving the demo toward production.
 
 ## File structure
 
-- `index.html` – dashboard shell and module layout.
-- `styles.css` – premium dark UI treatment for data-heavy workflows, responsive layouts, and admin panels.
-- `app.js` – mock scouting dataset, query parsing, local workspace persistence, profile rendering, watchlist/pipeline actions, source-health rendering, and schema coverage views.
+- `index.html` – dashboard shell and product modules.
+- `styles.css` – premium dark dashboard styling.
+- `app.js` – browser client that fetches API data and manages local workspace state.
+- `server.js` – lightweight Node HTTP server that serves static assets and JSON API endpoints.
+- `data/seed.json` – mock canonical scouting data used by the local API.
+- `db/schema.sql` – starter PostgreSQL schema for normalized players, source records, metrics, notes, and watchlists.
 
-## Notes
+## Run locally
 
-The implementation is still self-contained and browser-run, but it now behaves more like a lightweight product workspace. A production version would replace local mock data and `localStorage` with:
+```bash
+npm run scoutiq:serve
+```
 
-1. Scheduled ingestion workers writing public-source data into PostgreSQL.
-2. A normalized canonical player schema plus source-linked raw records.
-3. A backend search API with hybrid semantic + structured retrieval.
-4. Persisted watchlists, scout notes, alerts, and admin source management.
+Then open `http://127.0.0.1:4321`.
+
+## Production next steps
+
+1. Replace `data/seed.json` with scheduled ingestion jobs writing into PostgreSQL.
+2. Replace the in-browser local workspace with authenticated backend persistence.
+3. Replace rule-based query hinting with hybrid semantic search and grounded AI summaries.
+4. Extend the server into a real application API with alerts, assignments, and source management workflows.
