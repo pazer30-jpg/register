@@ -51,3 +51,8 @@ This mode embeds the seed data directly in the page so the UI works without star
 2. Replace the in-browser local workspace with authenticated backend persistence.
 3. Replace rule-based query hinting with hybrid semantic search and grounded AI summaries.
 4. Extend the server into a real application API with alerts, assignments, and source management workflows.
+
+
+## AppDeploy
+
+If you want to publish this through AppDeploy, use `npm start` as the runtime command and point AppDeploy at `showcase/scouting-platform`. The repo also includes `APPDEPLOY.md` with a ready-to-paste deployment prompt.

@@ -5,6 +5,7 @@
   },
   "scripts": {
     "test": "npx ava tests/*.test.js",
+    "start": "node showcase/scouting-platform/server.js",
     "scoutiq:serve": "node showcase/scouting-platform/server.js"
   }
 }
