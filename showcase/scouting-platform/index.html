@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScoutIQ Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div>
+          <div class="brand">
+            <div class="brand-mark">SI</div>
+            <div>
+              <p>ScoutIQ</p>
+              <span>Scouting intelligence</span>
+            </div>
+          </div>
+
+          <nav class="nav-section">
+            <button class="nav-item active">Overview</button>
+            <button class="nav-item">Search</button>
+            <button class="nav-item">Profiles</button>
+            <button class="nav-item">Comparisons</button>
+            <button class="nav-item">Pipeline</button>
+            <button class="nav-item">Admin Sources</button>
+          </nav>
+        </div>
+
+        <div class="sidebar-footer" id="sidebarHealth"></div>
+      </aside>
+
+      <main class="main-content">
+        <header class="hero-panel card">
+          <div>
+            <p class="eyebrow">AI-powered recruitment workspace</p>
+            <h1>Decision-ready player scouting from fragmented public data.</h1>
+            <p class="hero-copy">
+              ScoutIQ unifies open-source stats, public news, video metadata, scout notes,
+              and team-fit logic into one working environment so analysts can track,
+              evaluate, and recruit with evidence.
+            </p>
+            <div id="queryInsights" class="query-insights"></div>
+          </div>
+          <div class="hero-actions">
+            <label class="search-box">
+              <span>Natural language player search</span>
+              <input
+                id="nlQuery"
+                type="text"
+                placeholder="e.g. left-footed U23 winger in a pressing league with high carry volume"
+              />
+            </label>
+            <div class="action-row">
+              <button id="runQuery" class="primary-btn">Run AI search</button>
+              <button id="resetWorkspace" class="secondary-btn">Reset workspace</button>
+            </div>
+          </div>
+        </header>
+
+        <section class="kpi-grid" id="kpiGrid"></section>
+
+        <section class="two-column-layout">
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">1. Player search engine</p>
+                <h2>AI-ranked candidate discovery</h2>
+              </div>
+              <span class="badge">Natural language + filters</span>
+            </div>
+            <div class="filters filters-4">
+              <label>
+                Position
+                <select id="positionFilter"></select>
+              </label>
+              <label>
+                Age band
+                <select id="ageFilter">
+                  <option value="all">All</option>
+                  <option value="u21">Under 21</option>
+                  <option value="u24">Under 24</option>
+                  <option value="24plus">24+</option>
+                </select>
+              </label>
+              <label>
+                Recruitment stage
+                <select id="stageFilter">
+                  <option value="all">All</option>
+                  <option value="monitor">Monitor</option>
+                  <option value="analyze">Analyze</option>
+                  <option value="short-list">Short-list</option>
+                  <option value="reject">Reject</option>
+                </select>
+              </label>
+              <label>
+                Sort by
+                <select id="sortFilter">
+                  <option value="relevance">Relevance</option>
+                  <option value="fit">Fit score</option>
+                  <option value="upside">Upside</option>
+                  <option value="risk">Lowest risk</option>
+                </select>
+              </label>
+            </div>
+            <div id="searchResults" class="results-list"></div>
+          </article>
+
+          <article class="card section-card player-profile-panel">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">2. Unified player profile</p>
+                <h2 id="profileName">Select a player</h2>
+              </div>
+              <span id="profileDecision" class="badge muted">Decision pending</span>
+            </div>
+
+            <div class="profile-toolbar">
+              <button id="saveWatchlist" class="secondary-btn">Save to watchlist</button>
+              <button id="advancePipeline" class="secondary-btn">Advance stage</button>
+              <button id="flagPlayer" class="secondary-btn">Flag risk</button>
+            </div>
+
+            <div id="playerProfile" class="player-profile"></div>
+          </article>
+        </section>
+
+        <section class="grid-layout-3">
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">3-5. Intelligence layers</p>
+                <h2>Normalization, news, video, and schema coverage</h2>
+              </div>
+            </div>
+            <div id="intelStack" class="stack-list"></div>
+          </article>
+
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">6-8. Recruitment workflow</p>
+                <h2>Watchlist, AI summary, comparison, and notes</h2>
+              </div>
+            </div>
+            <div id="pipelineBoard" class="pipeline-board"></div>
+            <div id="comparisonPanel" class="comparison-panel"></div>
+            <div class="notes-panel">
+              <div class="section-header compact">
+                <div>
+                  <p class="eyebrow">Scout notes</p>
+                  <h3>Internal assessment</h3>
+                </div>
+              </div>
+              <textarea id="scoutNotesInput" rows="5" placeholder="Add live scouting notes, role observations, or recruitment concerns..."></textarea>
+              <div class="action-row">
+                <button id="saveNotes" class="primary-btn slim">Save notes</button>
+                <span id="notesStatus" class="subtle"></span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">9-10. Fit, alerts, and admin</p>
+                <h2>Team fit scoring engine</h2>
+              </div>
+            </div>
+            <div id="fitPanel" class="fit-panel"></div>
+            <div id="alertsPanel" class="alerts-panel"></div>
+          </article>
+        </section>
+
+        <section class="two-column-layout equal-columns">
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Admin sources</p>
+                <h2>Source health and ingestion controls</h2>
+              </div>
+              <span class="badge">Operational view</span>
+            </div>
+            <div id="sourceTable" class="source-table"></div>
+          </article>
+
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Canonical schema</p>
+                <h2>Normalized player record coverage</h2>
+              </div>
+              <span class="badge">PostgreSQL-ready</span>
+            </div>
+            <div id="schemaPanel" class="schema-panel"></div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

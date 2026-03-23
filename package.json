@@ -4,6 +4,8 @@
     "fs-extra": "^11.2.0"
   },
   "scripts": {
-    "test": "npx ava tests/*.test.js"
+    "test": "npx ava tests/*.test.js",
+    "start": "node showcase/scouting-platform/server.js",
+    "scoutiq:serve": "node showcase/scouting-platform/server.js"
   }
 }

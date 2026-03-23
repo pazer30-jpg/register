@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScoutIQ Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div>
+          <div class="brand">
+            <div class="brand-mark">SI</div>
+            <div>
+              <p>ScoutIQ</p>
+              <span>Scouting intelligence</span>
+            </div>
+          </div>
+
+          <nav class="nav-section">
+            <button class="nav-item active">Overview</button>
+            <button class="nav-item">Search</button>
+            <button class="nav-item">Profiles</button>
+            <button class="nav-item">Comparisons</button>
+            <button class="nav-item">Pipeline</button>
+            <button class="nav-item">Admin Sources</button>
+          </nav>
+        </div>
+
+        <div class="sidebar-footer" id="sidebarHealth"></div>
+      </aside>
+
+      <main class="main-content">
+        <header class="hero-panel card">
+          <div>
+            <p class="eyebrow">AI-powered recruitment workspace</p>
+            <h1>Decision-ready player scouting from fragmented public data.</h1>
+            <p class="hero-copy">
+              ScoutIQ unifies open-source stats, public news, video metadata, scout notes,
+              and team-fit logic into one working environment so analysts can track,
+              evaluate, and recruit with evidence.
+            </p>
+            <div id="queryInsights" class="query-insights"></div>
+          </div>
+          <div class="hero-actions">
+            <label class="search-box">
+              <span>Natural language player search</span>
+              <input
+                id="nlQuery"
+                type="text"
+                placeholder="e.g. left-footed U23 winger in a pressing league with high carry volume"
+              />
+            </label>
+            <div class="action-row">
+              <button id="runQuery" class="primary-btn">Run AI search</button>
+              <button id="resetWorkspace" class="secondary-btn">Reset workspace</button>
+            </div>
+          </div>
+        </header>
+
+        <section class="kpi-grid" id="kpiGrid"></section>
+
+        <section class="two-column-layout">
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">1. Player search engine</p>
+                <h2>AI-ranked candidate discovery</h2>
+              </div>
+              <span class="badge">Natural language + filters</span>
+            </div>
+            <div class="filters filters-4">
+              <label>
+                Position
+                <select id="positionFilter"></select>
+              </label>
+              <label>
+                Age band
+                <select id="ageFilter">
+                  <option value="all">All</option>
+                  <option value="u21">Under 21</option>
+                  <option value="u24">Under 24</option>
+                  <option value="24plus">24+</option>
+                </select>
+              </label>
+              <label>
+                Recruitment stage
+                <select id="stageFilter">
+                  <option value="all">All</option>
+                  <option value="monitor">Monitor</option>
+                  <option value="analyze">Analyze</option>
+                  <option value="short-list">Short-list</option>
+                  <option value="reject">Reject</option>
+                </select>
+              </label>
+              <label>
+                Sort by
+                <select id="sortFilter">
+                  <option value="relevance">Relevance</option>
+                  <option value="fit">Fit score</option>
+                  <option value="upside">Upside</option>
+                  <option value="risk">Lowest risk</option>
+                </select>
+              </label>
+            </div>
+            <div id="searchResults" class="results-list"></div>
+          </article>
+
+          <article class="card section-card player-profile-panel">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">2. Unified player profile</p>
+                <h2 id="profileName">Select a player</h2>
+              </div>
+              <span id="profileDecision" class="badge muted">Decision pending</span>
+            </div>
+
+            <div class="profile-toolbar">
+              <button id="saveWatchlist" class="secondary-btn">Save to watchlist</button>
+              <button id="advancePipeline" class="secondary-btn">Advance stage</button>
+              <button id="flagPlayer" class="secondary-btn">Flag risk</button>
+            </div>
+
+            <div id="playerProfile" class="player-profile"></div>
+          </article>
+        </section>
+
+        <section class="grid-layout-3">
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">3-5. Intelligence layers</p>
+                <h2>Normalization, news, video, and schema coverage</h2>
+              </div>
+            </div>
+            <div id="intelStack" class="stack-list"></div>
+          </article>
+
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">6-8. Recruitment workflow</p>
+                <h2>Watchlist, AI summary, comparison, and notes</h2>
+              </div>
+            </div>
+            <div id="pipelineBoard" class="pipeline-board"></div>
+            <div id="comparisonPanel" class="comparison-panel"></div>
+            <div class="notes-panel">
+              <div class="section-header compact">
+                <div>
+                  <p class="eyebrow">Scout notes</p>
+                  <h3>Internal assessment</h3>
+                </div>
+              </div>
+              <textarea id="scoutNotesInput" rows="5" placeholder="Add live scouting notes, role observations, or recruitment concerns..."></textarea>
+              <div class="action-row">
+                <button id="saveNotes" class="primary-btn slim">Save notes</button>
+                <span id="notesStatus" class="subtle"></span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">9-10. Fit, alerts, and admin</p>
+                <h2>Team fit scoring engine</h2>
+              </div>
+            </div>
+            <div id="fitPanel" class="fit-panel"></div>
+            <div id="alertsPanel" class="alerts-panel"></div>
+          </article>
+        </section>
+
+        <section class="two-column-layout equal-columns">
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Admin sources</p>
+                <h2>Source health and ingestion controls</h2>
+              </div>
+              <span class="badge">Operational view</span>
+            </div>
+            <div id="sourceTable" class="source-table"></div>
+          </article>
+
+          <article class="card section-card">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Canonical schema</p>
+                <h2>Normalized player record coverage</h2>
+              </div>
+              <span class="badge">PostgreSQL-ready</span>
+            </div>
+            <div id="schemaPanel" class="schema-panel"></div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script>window.SCOUTIQ_EMBEDDED = {"overview": {"normalizedProfiles": "284,000+", "dailyUpdates": "18.4k", "aiSummaries": "9,240"}, "players": [{"id": 1, "name": "Mateo Ibarra", "age": 22, "foot": "Left", "position": "RW", "team": "Deportivo Azul", "league": "Liga Profesional", "minutes": 2440, "contract": "2027", "decision": "Short-list", "pipeline": "Short-list", "fitScore": 91, "upside": 93, "riskScore": 38, "relevance": 96, "risk": ["Physical duel adaptation", "Small-sample finishing spike"], "strengths": ["Explosive 1v1 isolation", "Progressive carries", "Back-post movement"], "weaknesses": ["Aerial contribution", "Defensive timing in mid-block"], "trend": [68, 72, 74, 80, 82, 88], "stats": {"goals": 11, "assists": 9, "progressiveCarries": 7.8, "xgChain": 0.62, "takeOnsWon": "63%"}, "summary": "High-upside winger whose public event data and video clips show strong acceleration, repeatable ball progression, and improving final-third decision-making. Profiles well for transition-heavy teams.", "sources": ["FBref public tables", "club match reports", "league match center", "YouTube highlights"], "sourceHealth": {"coverage": 92, "confidence": 89, "freshness": "4h ago"}, "news": ["Reported interest from two top-flight clubs after 6 goal contributions in 8 matches.", "Coaching staff shifted him to inverted winger role, increasing touches in zone 14."], "videos": ["Match highlight reel", "Chance creation compilation", "Pressing actions cut-up"], "similar": ["Luis Guilherme", "Savio", "\u00c2ngelo"], "tacticalFit": ["Transition attacks", "Wide overloads", "High press"], "fitBreakdown": [{"label": "Role fit", "score": 95}, {"label": "Tactical fit", "score": 92}, {"label": "Production", "score": 88}, {"label": "Risk adjustment", "score": 73}], "watchlistReason": "Immediate fit for clubs seeking left-footed right winger with upside.", "schemaCoverage": ["identity", "minutes", "event stats", "news context", "video links", "fit score"]}, {"id": 2, "name": "Noah Bennett", "age": 19, "foot": "Right", "position": "DM", "team": "Northbridge FC", "league": "EFL Championship", "minutes": 1985, "contract": "2029", "decision": "Monitor", "pipeline": "Monitor", "fitScore": 86, "upside": 95, "riskScore": 44, "relevance": 91, "risk": ["Limited senior sample", "Can be pressed on first touch"], "strengths": ["Ball-winning range", "Vertical passing", "Defensive scanning"], "weaknesses": ["Half-turn press resistance", "Long-range shooting value"], "trend": [61, 65, 71, 73, 78, 84], "stats": {"tacklesWon": 3.8, "interceptions": 2.7, "progressivePasses": 8.9, "duelWinRate": "58%", "recoveries": 8.4}, "summary": "Young holding midfielder with strong out-of-possession coverage and enough passing ambition to support a front-foot system. Worth continued tracking for role stability and growth under pressure.", "sources": ["WhoScored public pages", "local press coverage", "club academy reports", "Wyscout public clips"], "sourceHealth": {"coverage": 88, "confidence": 84, "freshness": "2h ago"}, "news": ["Extended contract through 2029 following breakthrough season.", "Named in league U21 team of the month after five consecutive starts."], "videos": ["Defensive actions compilation", "Progressive passing vs top-6 opponents"], "similar": ["Jo\u00e3o Neves", "Tyler Adams", "Stefan Baj\u010deti\u0107"], "tacticalFit": ["Counter-press", "Double pivot coverage", "Rest-defense stability"], "fitBreakdown": [{"label": "Role fit", "score": 90}, {"label": "Tactical fit", "score": 86}, {"label": "Production", "score": 81}, {"label": "Risk adjustment", "score": 70}], "watchlistReason": "Strong age-adjusted defensive output with room to improve press resistance.", "schemaCoverage": ["identity", "minutes", "event stats", "academy context", "news context"]}, {"id": 3, "name": "Luka Petrovic", "age": 24, "foot": "Left", "position": "CB", "team": "NK Solaris", "league": "HNL", "minutes": 2790, "contract": "2026", "decision": "Analyze", "pipeline": "Analyze", "fitScore": 88, "upside": 84, "riskScore": 47, "relevance": 89, "risk": ["Recovery speed vs elite pace", "Aggressive stepping can open channel"], "strengths": ["Progressive distribution", "Aerial command", "Line-breaking carries"], "weaknesses": ["Emergency defending in wide spaces", "Turn speed"], "trend": [70, 71, 73, 77, 80, 83], "stats": {"aerialWinRate": "67%", "progressivePasses": 9.4, "clearances": 5.1, "blocks": 1.9, "carriesIntoMidfield": 4.6}, "summary": "Composed central defender with passing profile suited to possession-oriented build-up. Public reports suggest leadership traits and role flexibility, but foot-race exposure remains the main recruitment caveat.", "sources": ["Sofascore public match data", "federation data portal", "regional scouting blogs", "YouTube full-match clips"], "sourceHealth": {"coverage": 85, "confidence": 82, "freshness": "6h ago"}, "news": ["Captain in last four matches despite being one of the youngest starters.", "Linked with move abroad after standout display in cup semifinal."], "videos": ["Build-up passing montage", "Defensive duel reel"], "similar": ["Calafiori", "Strahinja Pavlovi\u0107", "Jakub Kiwior"], "tacticalFit": ["High-possession back line", "Three-at-the-back build-up", "Set-piece threat"], "fitBreakdown": [{"label": "Role fit", "score": 89}, {"label": "Tactical fit", "score": 91}, {"label": "Production", "score": 83}, {"label": "Risk adjustment", "score": 65}], "watchlistReason": "Ready-made possession CB with attractive cost-to-upside profile.", "schemaCoverage": ["identity", "minutes", "event stats", "leadership context", "video links"]}, {"id": 4, "name": "Rayan Osei", "age": 20, "foot": "Right", "position": "AM", "team": "Union Harbor", "league": "Belgian Pro League", "minutes": 2210, "contract": "2028", "decision": "Monitor", "pipeline": "Monitor", "fitScore": 84, "upside": 92, "riskScore": 41, "relevance": 87, "risk": ["Decision speed vs settled low blocks", "Needs more defensive work-rate consistency"], "strengths": ["Final-third passing", "Half-space receives", "Carries through traffic"], "weaknesses": ["Weak-side tracking", "Box arrival timing"], "trend": [59, 64, 70, 75, 81, 86], "stats": {"keyPasses": 2.9, "shotCreatingActions": 5.3, "carriesIntoBox": 2.1, "xA": 0.31, "touchesZone14": 9.2}, "summary": "Creative attacking midfielder with strong progression and chance creation signals. Profiles as a development buy for clubs seeking a press-resistant connector between midfield and front line.", "sources": ["FBref public tables", "Belgian federation reports", "public analyst thread", "YouTube clips"], "sourceHealth": {"coverage": 81, "confidence": 80, "freshness": "1h ago"}, "news": ["Assisted in three straight league matches after moving into a free-8 role.", "Praised by head coach for leadership in transition moments."], "videos": ["Creative passing compilation", "Turn-and-drive actions"], "similar": ["Xavi Simons", "Arda G\u00fcler", "Rayan Cherki"], "tacticalFit": ["Positional play", "Half-space creation", "Counter-press support"], "fitBreakdown": [{"label": "Role fit", "score": 84}, {"label": "Tactical fit", "score": 88}, {"label": "Production", "score": 80}, {"label": "Risk adjustment", "score": 68}], "watchlistReason": "High-upside creative profile with visible growth in role responsibility.", "schemaCoverage": ["identity", "minutes", "event stats", "coach context", "video links"]}], "sources": [{"name": "FBref public tables", "type": "Stats", "status": "Healthy", "freshness": "2h", "coverage": 94, "errors": 0}, {"name": "League match center", "type": "Context", "status": "Healthy", "freshness": "4h", "coverage": 88, "errors": 1}, {"name": "Club news pages", "type": "News", "status": "Lagging", "freshness": "11h", "coverage": 73, "errors": 3}, {"name": "YouTube highlights", "type": "Video", "status": "Healthy", "freshness": "1h", "coverage": 79, "errors": 0}, {"name": "Federation data portal", "type": "Stats", "status": "Needs review", "freshness": "26h", "coverage": 68, "errors": 5}], "schemaFields": [{"name": "identity.full_name", "description": "Canonical merged player identity", "coverage": "100%"}, {"name": "identity.aliases", "description": "Source-specific names and spellings", "coverage": "82%"}, {"name": "demographics.birth_year", "description": "Age normalization and age-band filters", "coverage": "100%"}, {"name": "club.current_team", "description": "Latest normalized team record", "coverage": "100%"}, {"name": "role.primary_position", "description": "Current primary role classification", "coverage": "100%"}, {"name": "stats.minutes_played", "description": "Current season playing time", "coverage": "100%"}, {"name": "stats.normalized_metrics", "description": "Per-90, possession-adjusted, or percentile metrics", "coverage": "76%"}, {"name": "context.news_items", "description": "Public reporting and context snippets", "coverage": "88%"}, {"name": "context.video_links", "description": "Public highlight or full-match links", "coverage": "79%"}, {"name": "ai.summary", "description": "Grounded scouting summary and recommendation", "coverage": "71%"}], "externalRepositories": [{"name": "romanzeze/footballManeger", "url": "https://github.com/romanzeze/footballManeger", "type": "External source repo", "stack": "Spring Boot + JPA + H2 + Liquibase", "notes": "Referenced external football data/service source with team and player endpoints discovered from the repo Postman collection.", "endpoints": ["GET /players", "GET /players/:id", "POST /players", "GET /team", "GET /team/:id/players"]}]};</script>
+    <script src="./app.js"></script>
+  </body>
+</html>
